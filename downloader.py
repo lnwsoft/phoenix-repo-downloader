@@ -76,7 +76,7 @@ for id in ids:
         continue
     filename    = re.search("\"(.*?)\"",disposition).group(1)
 
-    if args.package = "hostagent":
+    if args.package == "hostagent":
         if filename.startswith("SAPCAR"):
             filename = "SAPCAR"
         else if filename.startswith("SAPHOSTAGENT"):
