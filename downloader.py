@@ -76,13 +76,19 @@ for id in ids:
         continue
     filename    = re.search("\"(.*?)\"",disposition).group(1)
 
+    total_length = int(resp.headers.get('content-length'))
+
+    if dry_run:
+        print("%s - %s - %s - ok" % (id, filename, total_length))
+        continue
+
     if args.package == "hostagent":
         if filename.startswith("SAPCAR"):
-            target_final = "SAPCAR"
+            filename = "SAPCAR"
         elif filename.startswith("SAPHOSTAGENT"):
-            target_final = "SAPHOSTAGENT.SAR"
-    else:
-        target_final = "%s/%s" % (repo_package_dir,filename)
+            filename = "SAPHOSTAGENT.SAR"
+
+    target_final = "%s/%s" % (repo_package_dir,filename)
 
     if os.path.isfile(target_final):
         print("%s already downloaded" % filename)
@@ -90,20 +96,15 @@ for id in ids:
 
     target_download = "%s.download" % target_final
 
-    total_length = int(resp.headers.get('content-length'))
-
-    if dry_run:
-        print("%s - %s - %s - ok" % (id, filename, total_length))
-    else:
-        success = False
-        with open(target_download, "wb") as f:
-            try:
-                for chunk in tqdm(resp.iter_content(chunk_size=1024), total = math.ceil(total_length/1024), desc = filename, unit = "kb"):
-                    if chunk: # filter out keep-alive new chunks
-                        f.write(chunk)
-                        f.flush()
-                success = True
-            except Exception as e:
-                print("Exception %s happens, retry..." % e)
-        if success:
-            os.rename(target_download, target_final)
+    success = False
+    with open(target_download, "wb") as f:
+        try:
+            for chunk in tqdm(resp.iter_content(chunk_size=1024), total = math.ceil(total_length/1024), desc = filename, unit = "kb"):
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+                    f.flush()
+            success = True
+        except Exception as e:
+            print("Exception %s happens, retry..." % e)
+    if success:
+        os.rename(target_download, target_final)
