@@ -78,9 +78,9 @@ for id in ids:
 
     if args.package == "hostagent":
         if filename.startswith("SAPCAR"):
-            filename = "SAPCAR"
+            target_final = "SAPCAR"
         elif filename.startswith("SAPHOSTAGENT"):
-            filename = "SAPHOSTAGENT.SAR"
+            target_final = "SAPHOSTAGENT.SAR"
     else:
         target_final = "%s/%s" % (repo_package_dir,filename)
 
