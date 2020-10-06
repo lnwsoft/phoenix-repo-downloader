@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
 # SAP Package Downloader based on the SAP DLM API
 # Based on the work for https://github.com/Azure/sap-hana/blob/master/deploy/python/downloader/SAP_DLM.py
+
 import argparse
 import re
 import requests
@@ -8,6 +10,7 @@ from requests.auth import HTTPBasicAuth
 from tqdm import tqdm
 import math
 import os
+import sys
 
 # Packages are list of files that need to be downloaded
 # They should be normal SAP Download URLs, that can be generated in the
@@ -15,6 +18,8 @@ import os
 PACKAGE_DIR = "%s/packages/" % os.path.dirname(os.path.abspath(__file__))
 
 resp_timeout_sec = 10
+
+failure = False
 
 class HTTPSession(requests.Session):
     def __init__(self, auth=None, headers=None, retry=5):
@@ -73,6 +78,7 @@ for id in ids:
     disposition = resp.headers["content-disposition"]
     if disposition.find('filename="') < 0:
         print("error with id %s" % id)
+        failure = True
         continue
     filename    = re.search("\"(.*?)\"",disposition).group(1)
 
@@ -108,3 +114,6 @@ for id in ids:
             print("Exception %s happens, retry..." % e)
     if success:
         os.rename(target_download, target_final)
+
+if failure:
+    sys.exit(1)
