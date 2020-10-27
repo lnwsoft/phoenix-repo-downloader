@@ -74,6 +74,7 @@ for id in ids:
     resp = sess.get(url_token, params=payload, timeout=resp_timeout_sec, stream=True)
     if not "content-disposition" in resp.headers:
         print("error with id %s" % id)
+        failure = True
         continue
     disposition = resp.headers["content-disposition"]
     if disposition.find('filename="') < 0:
@@ -111,7 +112,7 @@ for id in ids:
                     f.flush()
             success = True
         except Exception as e:
-            print("Exception %s happens, retry..." % e)
+            print("Exception %s happened, retry..." % e)
     if success:
         os.rename(target_download, target_final)
 
