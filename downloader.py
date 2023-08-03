@@ -72,9 +72,16 @@ url_token = "https://origin.softwaredownloads.sap.com/tokengen/"
 for id in ids:
     payload = { "file": id }
     resp = sess.get(url_token, params=payload, timeout=resp_timeout_sec, stream=True)
+    
     if not "content-disposition" in resp.headers:
-        print("error with id %s" % id)
+        print("error with id %s (HTTP %s)" % (id, resp.status_code))
         failure = True
+
+        if resp.status_code == 401:
+            print("HTTP 401 likely means your credentials are invalid, e.g. your password is wrong or has expired.")
+            print("Aborting download to avoid locking your account.")
+            break
+
         continue
     disposition = resp.headers["content-disposition"]
     if disposition.find('filename="') < 0:
